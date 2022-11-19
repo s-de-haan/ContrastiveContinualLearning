@@ -51,10 +51,11 @@ class Oja(nn.Module):
 
 class Classifier(nn.Module):
 
-    def __init__(self, r_dim=400, num_classes=2) -> None:
+    def __init__(self, r_dim=400, num_classes=10) -> None:
         super(Classifier,self).__init__()
 
         self.layers = nn.Sequential(
+            nn.Flatten(),
             nn.Linear(r_dim, num_classes)
         )
 
