@@ -29,8 +29,9 @@ class SupConLoss(nn.Module):
                   else torch.device('cpu'))
 
         if len(features.shape) < 3:
-            raise ValueError('`features` needs to be [bsz, n_views, ...],'
-                             'at least 3 dimensions are required')
+            features = features.reshape([features.shape[0],1,features.shape[1]])
+            # raise ValueError('`features` needs to be [bsz, n_views, ...],'
+                            #  'at least 3 dimensions are required')
         if len(features.shape) > 3:
             features = features.view(features.shape[0], features.shape[1], -1)
 
