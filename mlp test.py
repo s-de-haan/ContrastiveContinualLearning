@@ -57,17 +57,17 @@ criterion = losses.SupConLoss()
 
 # Continual learning strategy
 cl_strategy = Naive(model, optimizer, criterion, train_mb_size=128, train_epochs=10, eval_mb_size=128, device=device, plugins=[SupConFilterPlugin()])
-classifier_strategy = Naive(model.classifier, classifier_optimizer, CrossEntropyLoss(), train_mb_size=128, train_epochs=10, eval_mb_size=128, device=device)
+classifier_strategy = Naive(model.classifier, classifier_optimizer, CrossEntropyLoss(), train_mb_size=128, train_epochs=2, eval_mb_size=128, device=device)
 
 # train and test loop over the stream of experiences
 results = []
 for train_exp in train_stream:
 	cl_strategy.train(train_exp)
-	# results.append(cl_strategy.eval(test_stream))
-	def tformer(x):
-		return model.encoder(x)
-	train_exp.dataset.transform = tformer
+	train_exp.dataset.transform = lambda x: model.encoder(x)
+	test_stream.dataset.transform = lambda x: model.encoder(x)
 	classifier_strategy.train(train_exp)
 
+	results.append(classifier_strategy.eval(test_stream))
+
 # print(results)
-# print([res['Top1_Acc_Stream/eval_phase/test_stream/Task000'] for res in results])
+print([res['Top1_Acc_Stream/eval_phase/test_stream/Task000'] for res in results])
