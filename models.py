@@ -95,7 +95,7 @@ class Model(nn.Module):
         self.classifier = Classifier()
 
     def forward(self, x):
-        return F.normalize(self.filter(self.projector(self.encoder(x)), dim=1))
+        return F.normalize(self.filter(self.projector(self.encoder(x))), dim=1)
     
     def classify(self, x):
         r = self.encoder(x)
