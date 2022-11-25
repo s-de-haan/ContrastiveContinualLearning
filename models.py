@@ -68,8 +68,12 @@ class Filter(nn.Module):
         super(Filter,self).__init__()
         self.dims = []
 
-    def append(self, d):
-        self.dims.append(d)
+    def add_dimension(self, model, train_loader):
+        with torch.no_grad():
+            images, _ = next(iter(train_loader))
+            z_filtered = model(images)
+            principle_direction = torch.svd(z_filtered).V[:,0]
+            self.dims.append(principle_direction)
 
     def forward(self, z):
         for _, d in enumerate(self.dims):
@@ -78,6 +82,24 @@ class Filter(nn.Module):
             z = F.normalize(z, dim=1)
         
         return z
+    
+class Model(nn.Module):
+
+    def __init__(self):
+        super(Model, self).__init__()
+        
+        self.encoder = Encoder()
+        self.projector = Projector()
+        self.filter = Filter()
+        self.classifier = Classifier()
+
+    def forward(self, x):
+        return F.normalize(self.filter(self.projector(self.encoder(x)), dim=1))
+    
+    def classify(self, x):
+        r = self.encoder(x)
+
+        return self.classifier(r)
 
 
 class SupervisedContrastiveLearner(nn.Module):
