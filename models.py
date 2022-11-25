@@ -55,6 +55,7 @@ class Classifier(nn.Module):
         super(Classifier,self).__init__()
 
         self.layers = nn.Sequential(
+            nn.Flatten(),
             nn.Linear(r_dim, num_classes)
         )
 
